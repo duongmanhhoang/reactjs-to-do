@@ -7,7 +7,7 @@ const Task = props => {
     return (
         <>
             <Draggable
-                draggableId={task.id}
+                draggableId={task._id}
                 index={index}
             >
                 {provided => (
@@ -17,7 +17,7 @@ const Task = props => {
                         ref={provided.innerRef}
                         className='tasks__column--panel--item'
                     >
-                        {task.content}
+                        {task.title}
                     </div>
                 )}
             </Draggable>

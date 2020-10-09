@@ -2,36 +2,15 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import propsToJS from '../../shared/prop-to-js';
-import { getTasksState, fetchTasks } from '../../redux/modules/tasks';
+import { getCategoriesState, fetchCategories } from '../../redux/modules/categories';
 import Column from './column';
 import './tasks.scss';
 
-const initialData = {
-    tasks: {
-        'task-1': { id: 'task-1', content: 'Take out the garbage' },
-        'task-2': { id: 'task-2', content: 'Watch my favorte show' },
-        'task-3': { id: 'task-3', content: 'Charge my phone' },
-        'task-4': { id: 'task-4', content: 'Cook dinner' }
-    },
-    columns: [
-        {
-            id: 'column-1',
-            title: 'Back Log',
-            taskIds: ['task-1', 'task-2']
-        },
-        {
-            id: 'column-2',
-            title: 'To do',
-            taskIds: ['task-3', 'task-4']
-        }
-    ]
-};
-
 const Tasks = (props) => {
-    const { handleFetchTasks } = props;
+    const { handleFetchCategories, categories } = props;
 
     useEffect(() => {
-        handleFetchTasks();
+        handleFetchCategories();
     }, []);
 
     const onDragEnd = (result) => {
@@ -44,9 +23,11 @@ const Tasks = (props) => {
                 <DragDropContext
                     onDragEnd={() => onDragEnd}
                 >
-                    {initialData.columns.map((column) => {
-                        const tasks = column.taskIds.map(taskId => initialData.tasks[taskId]);
-                        return <Column key={column.id} column={column} tasks={tasks} />;
+                    {categories.map((category) => {
+                        const tasks = category.tasks;
+                        console.log(tasks);
+
+                        return <Column key={category._id} category={category} tasks={tasks} />;
                     })}
                 </DragDropContext>
             </div>
@@ -55,15 +36,17 @@ const Tasks = (props) => {
 };
 
 const mapStateToProps = (state) => {
-    const tasks = getTasksState(state);
+    const tasks = {};
+    const categories = getCategoriesState(state);
 
     return {
-        tasks
+        tasks,
+        categories
     }
 };
 
 const mapDispatchToProps = {
-    handleFetchTasks: fetchTasks
+    handleFetchCategories: fetchCategories
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(propsToJS(Tasks));
