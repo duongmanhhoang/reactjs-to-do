@@ -4,21 +4,45 @@ import { all, call, takeLatest, put } from 'redux-saga/effects';
 import axios from '../../shared/axios';
 import handleResponse from '../../shared/handle-response';
 import { API_URL } from '../../shared/config';
+import { act } from 'react-dom/test-utils';
 
 export const FETCH_CATEGORIES = 'FETCH_CATEGORIES';
 export const FETCH_CATEGORIES_SUCCESSFULLY = 'FETCH_CATEGORIES_SUCCESSFULLY';
 
+export const CREATE_TASK = 'CREATE_TASK';
+export const CREATE_TASK_SUCCESSFULLY = 'CREATE_TASK_SUCCESSFULLY';
+
 export const fetchCategories = createAction(FETCH_CATEGORIES);
 export const fetchCategoriesSuccessfully = createAction(FETCH_CATEGORIES_SUCCESSFULLY);
 
+export const createTask = createAction(CREATE_TASK);
+export const createTaskSuccessfully = createAction(CREATE_TASK_SUCCESSFULLY);
+
 const setCategories = (state, action) => state.set('data', fromJS(action.payload));
+const setTasks = (state, action) => {
+    let categories = state.get('data').toJS();
+    categories = categories.map(item => {
+        if (item._id === action.payload.category) {
+            const currentTasks = [...item.tasks];
+            currentTasks.push(action.payload);
+            const newItem = Object.assign({}, item, { tasks: currentTasks});
+
+            return newItem;
+        }
+
+        return item;
+    });
+
+    return state.set('data', fromJS(categories));
+}
 
 const categoriesInitialState = fromJS({
     data: []
 })
 
 export default handleActions({
-    [FETCH_CATEGORIES_SUCCESSFULLY]: setCategories
+    [FETCH_CATEGORIES_SUCCESSFULLY]: setCategories,
+    [CREATE_TASK_SUCCESSFULLY]: setTasks
 }, categoriesInitialState);
 
 export const getCategoriesState = state => state.get('categories').get('data');
@@ -26,6 +50,7 @@ export const getCategoriesState = state => state.get('categories').get('data');
 export function* categoriesSagas() {
     yield all([
         takeLatest(FETCH_CATEGORIES, fetchCategoriesFromApi),
+        takeLatest(CREATE_TASK, createTaskFromApi)
     ]);
 }
 
@@ -42,8 +67,27 @@ function* fetchCategoriesFromApi() {
     handleResponse(response);
 }
 
+function* createTaskFromApi(action) {
+    const {payload} = action;
+    const response = yield call(apiCreateTask, payload);
+
+    if (response.status === 200) {
+        const {data} = response;
+        yield put(createTaskSuccessfully(data));
+        
+        return;
+    }
+
+}
+
 export function apiFetchCategories() {
     return axios.get(`${API_URL}/api/categories`)
+        .then(response => response)
+        .catch(error => error.response);
+}
+
+export function apiCreateTask(data) {
+    return axios.post(`${API_URL}/api/tasks`, data)
         .then(response => response)
         .catch(error => error.response);
 }

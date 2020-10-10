@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Collapse, Button, Modal, Form, Input } from 'antd';
 import { connect } from 'react-redux';
-import { createTask } from '../../../redux/modules/tasks';
+import { createTask } from '../../../redux/modules/categories';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Droppable } from 'react-beautiful-dnd';
 import propsToJS from '../../../shared/prop-to-js';
@@ -35,7 +35,7 @@ const Column = props => {
     const [form] = Form.useForm();
 
     const onFinishCreateTask = () => {
-        const dataForm  = form.getFieldsValue();
+        const dataForm = form.getFieldsValue();
         const dataSubmit = {
             title: dataForm.title,
             category: category._id
@@ -53,7 +53,9 @@ const Column = props => {
 
     return (
         <>
-            <Collapse>
+            <Collapse
+                defaultActiveKey={[category._id]}
+            >
                 <Panel
                     header={category.title}
                     key={category._id}
@@ -73,6 +75,7 @@ const Column = props => {
                                         <Task key={task.id} task={task} index={index} />
                                     ))
                                 }
+                                {provided.placeholder}
                             </div>
                         )}
                     </Droppable>
