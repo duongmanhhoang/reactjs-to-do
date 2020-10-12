@@ -4,7 +4,6 @@ import { all, call, takeLatest, put } from 'redux-saga/effects';
 import axios from '../../shared/axios';
 import handleResponse from '../../shared/handle-response';
 import { API_URL } from '../../shared/config';
-import { act } from 'react-dom/test-utils';
 
 export const FETCH_CATEGORIES = 'FETCH_CATEGORIES';
 export const FETCH_CATEGORIES_SUCCESSFULLY = 'FETCH_CATEGORIES_SUCCESSFULLY';
@@ -12,11 +11,17 @@ export const FETCH_CATEGORIES_SUCCESSFULLY = 'FETCH_CATEGORIES_SUCCESSFULLY';
 export const CREATE_TASK = 'CREATE_TASK';
 export const CREATE_TASK_SUCCESSFULLY = 'CREATE_TASK_SUCCESSFULLY';
 
+export const DRAG_AND_DROP = 'DRAG_AND_DROP';
+export const DRAG_AND_DROP_SUCCESSFULLY = 'DRAG_AND_DROP_SUCCESSFULLY';
+
 export const fetchCategories = createAction(FETCH_CATEGORIES);
 export const fetchCategoriesSuccessfully = createAction(FETCH_CATEGORIES_SUCCESSFULLY);
 
 export const createTask = createAction(CREATE_TASK);
 export const createTaskSuccessfully = createAction(CREATE_TASK_SUCCESSFULLY);
+
+export const dragAndDrop = createAction(DRAG_AND_DROP);
+export const dragAndDropSuccessfully = createAction(DRAG_AND_DROP_SUCCESSFULLY);
 
 const setCategories = (state, action) => state.set('data', fromJS(action.payload));
 const setTasks = (state, action) => {
@@ -42,7 +47,8 @@ const categoriesInitialState = fromJS({
 
 export default handleActions({
     [FETCH_CATEGORIES_SUCCESSFULLY]: setCategories,
-    [CREATE_TASK_SUCCESSFULLY]: setTasks
+    [CREATE_TASK_SUCCESSFULLY]: setTasks,
+    [DRAG_AND_DROP_SUCCESSFULLY]: setCategories
 }, categoriesInitialState);
 
 export const getCategoriesState = state => state.get('categories').get('data');
@@ -50,7 +56,8 @@ export const getCategoriesState = state => state.get('categories').get('data');
 export function* categoriesSagas() {
     yield all([
         takeLatest(FETCH_CATEGORIES, fetchCategoriesFromApi),
-        takeLatest(CREATE_TASK, createTaskFromApi)
+        takeLatest(CREATE_TASK, createTaskFromApi),
+        takeLatest(DRAG_AND_DROP, dragAndDropFunc)
     ]);
 }
 
@@ -78,6 +85,21 @@ function* createTaskFromApi(action) {
         return;
     }
 
+    handleResponse(response);
+}
+
+function* dragAndDropFunc(action) {
+    const {payload} = action;
+    const response = yield call(apiDragAndDrop, payload);
+
+    if (response.status === 200) {
+        const {data} = response;
+        yield put(dragAndDropSuccessfully(data));
+
+        return;
+    }
+
+    handleResponse(response);
 }
 
 export function apiFetchCategories() {
@@ -90,4 +112,10 @@ export function apiCreateTask(data) {
     return axios.post(`${API_URL}/api/tasks`, data)
         .then(response => response)
         .catch(error => error.response);
+}
+
+export function apiDragAndDrop(data) {
+    return axios.post(`${API_URL}/api/tasks/drag-and-drop`, data)
+        .then(res => res)
+        .catch(err => err.response)
 }

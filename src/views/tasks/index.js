@@ -2,19 +2,27 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import propsToJS from '../../shared/prop-to-js';
-import { getCategoriesState, fetchCategories } from '../../redux/modules/categories';
+import { getCategoriesState, fetchCategories, dragAndDrop } from '../../redux/modules/categories';
 import Column from './column';
 import './tasks.scss';
 
 const Tasks = (props) => {
-    const { handleFetchCategories, categories } = props;
+    const { handleFetchCategories, categories, handleDragAndDrop } = props;
 
     useEffect(() => {
         handleFetchCategories();
     }, []);
 
     const onDragEnd = (result) => {
-        console.log(result);
+        const categoryId = result.destination.droppableId;
+        const newIndex = result.destination.index;
+        const taskId = result.draggableId;
+        const data = {
+            categoryId,
+            taskId,
+            newIndex
+        };
+        handleDragAndDrop(data);
     }
 
     function sortTasks(a, b) {
@@ -37,6 +45,7 @@ const Tasks = (props) => {
                 >
                     {categories.map((category) => {
                         const tasks = category.tasks.sort(sortTasks);
+                        console.log(tasks);
 
                         return <Column key={category._id} category={category} tasks={tasks} />;
                     })}
@@ -57,7 +66,8 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = {
-    handleFetchCategories: fetchCategories
+    handleFetchCategories: fetchCategories,
+    handleDragAndDrop: dragAndDrop
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(propsToJS(Tasks));
