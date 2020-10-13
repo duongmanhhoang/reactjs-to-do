@@ -61,11 +61,17 @@ export function* categoriesSagas() {
     ]);
 }
 
-function* fetchCategoriesFromApi() {
+function* fetchCategoriesFromApi(action) {
+    const {payload} = action;
     const response = yield call(apiFetchCategories);
 
     if (response.status === 200) {
         const {data} = response;
+        const {callback} = payload;
+
+        if (callback) {
+            callback(data)
+        }
         yield put(fetchCategoriesSuccessfully(data));
         
         return;
