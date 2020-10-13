@@ -72,7 +72,7 @@ const Column = props => {
                             >
                                 {
                                     tasks.map((task, index) => (
-                                        <Task key={task.id} task={task} index={index} />
+                                        <Task key={task._id} task={task} index={index} />
                                     ))
                                 }
                                 {provided.placeholder}
