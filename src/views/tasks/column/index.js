@@ -124,4 +124,5 @@ const mapStateToProps = state => {
 const mapDispatchToProps = {
     handleCreateTask: createTask
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(propsToJS(Column));

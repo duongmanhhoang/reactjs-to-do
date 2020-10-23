@@ -6,7 +6,7 @@ import history from '../../routes/history';
 import axios from '../../shared/axios';
 import handleResponse from '../../shared/handle-response';
 import { API_URL } from '../../shared/config';
-import { setCookie } from '../../shared/cookies';
+import { setCookie, getCookie } from '../../shared/cookies';
 
 export const LOGIN = 'LOGIN';
 export const LOGIN_SUCCESSFULLY = 'LOGIN_SUCCESSFULLY';
@@ -42,8 +42,8 @@ function* callLogin(action) {
         yield put(loginSuccessfully(data.user));
         setCookie('access_token', data.token, 60 * 60 * 24);
         setCookie('user', JSON.stringify(data.user), 60 * 60 * 24);
-        toastr.success('Login Successfully')
-        history.push('/');
+        toastr.success('Login Successfully');
+        window.location.href = '/';
 
         return;
     }

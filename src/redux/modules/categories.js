@@ -14,6 +14,8 @@ export const CREATE_TASK_SUCCESSFULLY = 'CREATE_TASK_SUCCESSFULLY';
 export const DRAG_AND_DROP = 'DRAG_AND_DROP';
 export const DRAG_AND_DROP_SUCCESSFULLY = 'DRAG_AND_DROP_SUCCESSFULLY';
 
+export const UPDATE_FORCE_RENDER = 'UPDATE_FORCE_RENDER';
+
 export const fetchCategories = createAction(FETCH_CATEGORIES);
 export const fetchCategoriesSuccessfully = createAction(FETCH_CATEGORIES_SUCCESSFULLY);
 
@@ -22,6 +24,8 @@ export const createTaskSuccessfully = createAction(CREATE_TASK_SUCCESSFULLY);
 
 export const dragAndDrop = createAction(DRAG_AND_DROP);
 export const dragAndDropSuccessfully = createAction(DRAG_AND_DROP_SUCCESSFULLY);
+
+export const updateForceRender = createAction(UPDATE_FORCE_RENDER);
 
 const setCategories = (state, action) => state.set('data', fromJS(action.payload));
 const setTasks = (state, action) => {
@@ -41,17 +45,23 @@ const setTasks = (state, action) => {
     return state.set('data', fromJS(categories));
 }
 
+const setForceRender = state => state.set('forceRender', !state.get('forceRender'));
+
+
 const categoriesInitialState = fromJS({
-    data: []
+    data: [],
+    forceRender: false
 })
 
 export default handleActions({
     [FETCH_CATEGORIES_SUCCESSFULLY]: setCategories,
     [CREATE_TASK_SUCCESSFULLY]: setTasks,
-    [DRAG_AND_DROP_SUCCESSFULLY]: setCategories
+    [DRAG_AND_DROP_SUCCESSFULLY]: setCategories,
+    [UPDATE_FORCE_RENDER]: setForceRender 
 }, categoriesInitialState);
 
 export const getCategoriesState = state => state.get('categories').get('data');
+export const getForceRenderState = state => state.get('categories').get('forceRender');
 
 export function* categoriesSagas() {
     yield all([
@@ -67,10 +77,9 @@ function* fetchCategoriesFromApi(action) {
 
     if (response.status === 200) {
         const {data} = response;
-        const {callback} = payload;
 
-        if (callback) {
-            callback(data)
+        if (payload.callback) {
+            payload.callback(data)
         }
         yield put(fetchCategoriesSuccessfully(data));
         

@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import propsToJS from '../../shared/prop-to-js';
-import { getCategoriesState, fetchCategories, dragAndDrop } from '../../redux/modules/categories';
+import { getCategoriesState, fetchCategories, dragAndDrop, getForceRenderState } from '../../redux/modules/categories';
 import Column from './column';
 import './tasks.scss';
 
 const Tasks = (props) => {
-    const { handleFetchCategories, categories, handleDragAndDrop } = props;
+    const { handleFetchCategories, categories, handleDragAndDrop, forceRender } = props;
     const [categoriesState, setCategoriesState] = useState(categories);
 
     useEffect(() => {
         handleFetchCategories({
             callback: setCategoriesState
         });
-    }, []);
+    }, [forceRender]);
 
     function sortTasks(a, b) {
         if (a.order < b.order) {
@@ -129,10 +129,12 @@ const Tasks = (props) => {
 const mapStateToProps = (state) => {
     const tasks = {};
     const categories = getCategoriesState(state);
+    const forceRender = getForceRenderState(state);
 
     return {
         tasks,
-        categories
+        categories,
+        forceRender
     }
 };
 

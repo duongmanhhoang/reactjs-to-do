@@ -1,0 +1,10 @@
+@import "../../../../shared//app.scss";
+
+.task {
+    &__btn-delete,  &__btn-edit {
+        float: right;
+        border: none;
+        display: block;
+    }
+
+}
